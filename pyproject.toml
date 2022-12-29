@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "image-orientation-recognition"
+version = "0.1.0"
+description = ""
+authors = ["Kevin Wang <kevmo314@gmail.com>"]
+readme = "README.md"
+packages = [{include = "image_orientation_recognition"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+torch = "^1.13.1"
+torchvision = "^0.14.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

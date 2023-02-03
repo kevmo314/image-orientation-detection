@@ -9,13 +9,13 @@ class Network(torch.nn.Module):
     def __init__(self):
         super(Network, self).__init__()
         
-        self.conv1 = torch.nn.Conv2d(3, 6, 5)
+        self.conv1 = torch.nn.Conv2d(1, 3, 5)
         self.mp1 = torch.nn.MaxPool2d(2, 2)
-        self.conv2 = torch.nn.Conv2d(6, 16, 5)
+        self.conv2 = torch.nn.Conv2d(3, 4, 5)
         self.mp2 = torch.nn.MaxPool2d(2, 2)
-        self.fc1 = torch.nn.LazyLinear(120)
-        self.fc2 = torch.nn.Linear(120, 84)
-        self.fc3 = torch.nn.Linear(84, 2)
+        self.fc1 = torch.nn.Linear(20, 20)
+        self.fc2 = torch.nn.Linear(20, 5)
+        self.fc3 = torch.nn.Linear(5, 2)
         self.softmax = torch.nn.Softmax(-1)
 
     def forward(self, x):
@@ -31,15 +31,15 @@ class Network(torch.nn.Module):
 class Images(torch.utils.data.Dataset):
     def __init__(self, root):
         self.imgs = [os.path.join(root, f) for f in os.listdir(root)]
-        self.imgs = [i for i in self.imgs if os.path.isfile(i)]
+        self.imgs = [i for i in self.imgs if os.path.isfile(i) and os.path.getsize(i) > 0]
 
     def __len__(self):
         return 2 * len(self.imgs)
 
     def __getitem__(self, index):
         if index < len(self.imgs):
-            img = torchvision.io.read_image(self.imgs[index]).to(device)
-            return (img, torch.tensor(0).to(device))
+            img = torchvision.io.read_image(self.imgs[index], torchvision.io.ImageReadMode.GRAY)
+            return (img, torch.tensor(0))
         # flip the image
         img, cls = self[index - len(self)]
         img = torchvision.transforms.functional.hflip(img)
@@ -52,19 +52,22 @@ def test(model, root='./test'):
         images = Images(root)
         for i in range(len(images)):
             image, label = images[i]
+            image, label = image.to(device), label.to(device)
             output = model(image.unsqueeze(0).float() / 256)
             if torch.squeeze(output).argmax() == label:
                 correct += 1
     print('%s Accuracy: %d/%d' % (root, correct, len(images)))
 
 def train(num_epochs, model):
-    train_loader = torch.utils.data.DataLoader(Images('./train'), batch_size=32, shuffle=True)
     loss_fn = torch.nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.00005)
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.0001)
+    test(model, root='./test')
 
     for epoch in range(num_epochs):
+        train_loader = torch.utils.data.DataLoader(Images('./train'), batch_size=128, shuffle=True, num_workers=4)
         running_loss = 0.0
         for images, labels in train_loader:
+            images, labels = images.to(device), labels.to(device)
             optimizer.zero_grad()
             outputs = model(images.float() / 256)
             loss = loss_fn(outputs, labels)
@@ -78,4 +81,4 @@ def train(num_epochs, model):
             test(model, root='./test')
 
 if __name__ == '__main__':
-    train(500, torch.load('model.pt').to(device))
+    train(1500, torch.load('model.pt').to(device))

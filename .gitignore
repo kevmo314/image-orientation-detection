@@ -1,0 +1,10 @@
+__pycache__
+.venv
+yt-dlp
+model.pt
+
+train/
+test/
+
+train.manifest
+test.manifest

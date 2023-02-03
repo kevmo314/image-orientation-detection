@@ -10,6 +10,7 @@ packages = [{include = "image_orientation_recognition"}]
 python = "^3.10"
 torch = "^1.13.1"
 torchvision = "^0.14.1"
+onnx = "^1.13.0"
 
 
 [build-system]

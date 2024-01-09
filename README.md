@@ -2,7 +2,7 @@
 
 This is a simple image orientation detection model. It uses a CNN to identify upside down images.
 
-It is trained on YouTube videos. This repository is intended to be educational as the model is not particularly complex or innovative, but instead minimally implemented. See more details in the corresponding [blog post](https://blog.kevmo314.com/image-orientation-detection.html).
+It is trained on YouTube videos. This repository is intended to be educational as the model is not particularly complex or innovative, but instead minimally implemented.
 
 ## Dataset
 
